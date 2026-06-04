@@ -1,4 +1,4 @@
-﻿"""
+"""
 ============================================================
  AI Agent 对话摘要 Hook - 自动推送到 OLED 屏幕
 ============================================================
@@ -26,6 +26,7 @@
 ============================================================
 """
 
+import os
 import serial
 import sys
 import time
@@ -125,6 +126,11 @@ def send_to_screen(title, body_lines):
         data = (command + '\n').encode('utf-8')
         ser.write(data)
         ser.close()
+
+        # 创建标记文件，表示已调用
+        marker_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".hook_called")
+        with open(marker_file, "w") as f:
+            f.write(str(time.time()))
         print(f"[成功] 已推送到屏幕")
         print(f"  黄色区域（标题）: {title} ({get_text_width(title)}宽度)")
         for i, line in enumerate(body_lines):

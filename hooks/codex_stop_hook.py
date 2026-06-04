@@ -74,6 +74,21 @@ def extract_summary(message):
 
 
 def main():
+    # 检测是否已经调用过 conversation_hook.py
+    marker_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "python", ".hook_called")
+    if os.path.exists(marker_file):
+        # 检查标记文件是否是最近30秒内创建的
+        try:
+            with open(marker_file, "r") as f:
+                timestamp = float(f.read().strip())
+            if time.time() - timestamp < 30:  # 30秒内
+                log("Hook already called recently, skipping")
+                # 删除标记文件
+                os.remove(marker_file)
+                return
+        except:
+            pass
+
     raw = read_stdin().strip()
     if not raw:
         try:
