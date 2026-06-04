@@ -1,6 +1,6 @@
 # AI Agent 桌面小屏幕
 
-> 一个放在电脑旁边的 OLED 小屏幕，每次对话结束后自动显示 AI Agent 的工作摘要和状态（成功 / 失败）。
+> 一个放在电脑旁边的 OLED 小屏幕，每次对话结束后自动显示 AI Agent 的工作摘要。
 
 **[English Version](README_EN.md)** | **[技术文档](docs/项目文档.md)**
 
@@ -19,10 +19,6 @@
 > 🔗 **推荐购买链接**：[淘宝 - ESP8266 OLED 一体板](https://e.tb.cn/h.RhEO5NmkXbNigtq?tk=HTlngZy42Jn)
 
 ## 实物展示
-
-<p align="center">
-  <img src="docs/images/display_preview.png" alt="OLED Desk Display 实物图" width="480">
-</p>
 
 <p align="center">
   <img src="docs/images/demo_animation.gif" alt="OLED Desk Display 效果演示" width="480">

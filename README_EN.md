@@ -1,6 +1,6 @@
 # AI Agent Desktop OLED Display
 
-> A small OLED screen for your desk that automatically shows your AI Agent work summary and status (Success / Failed) after each conversation.
+> A small OLED screen for your desk that automatically shows your AI Agent work summary after each conversation.
 
 **[中文版本](README.md)** | **[Technical Documentation](docs/项目文档.md)**
 
