@@ -151,24 +151,6 @@ python python/display_hook.py hello
 
 ---
 
-## Advanced: Conversation Summary Hook
-
-Push title and summary to screen after each conversation:
-
-```bash
-# Title + multi-line summary (one arg per line)
-python python/conversation_hook.py "Project Done" "Code uploaded" "Tests passed" "Docs written"
-
-# Title + summary (single line)
-python python/conversation_hook.py "Project Done" "Code uploaded" 
-```
-
-> 💡 Title max: 10 Chinese chars / 20 English chars. Summary max: 3 lines, each 10 Chinese / 20 English chars. No truncation — keep text within limits.
->
-> When triggered by Hook, the screen flashes white/black 3 times before showing text — so you won't miss it. Manual sends via display_hook.py won't flash.
-
----
-
 ## Customize Default Text
 
 Open `arduino/sketch_jun4a/sketch_jun4a.ino`, find:
@@ -208,8 +190,8 @@ Change to whatever you want, then re-upload.
 | `arduino/sketch_jun4a/sketch_jun4a.ino` | Program to upload to the board (one-time) |
 | `python/display_hook.py` | Run on PC to send messages to screen (daily use) |
 | `python/conversation_hook.py` | Conversation summary hook |
-| `hooks/codex_stop_hook.py` | Codex auto-trigger hook on conversation end |
-| `AGENTS.md` | Codex hook configuration file |
+
+
 | `requirements.txt` | Python dependencies |
 | `docs/项目文档.md` | Technical details and development log |
 

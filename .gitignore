@@ -20,5 +20,5 @@ desktop.ini
 # IDE
 .vscode/
 .idea/
-hooks/hook_debug.log
-hooks/test_*.txt
+
+

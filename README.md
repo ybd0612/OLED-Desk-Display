@@ -148,7 +148,7 @@ pip install -r requirements.txt
 
 ### 5.3 修改 COM 号
 
-用记事本打开 `python/display_hook.py`，找到这一行：
+
 
 ```python
 SERIAL_PORT = 'COM3'
@@ -156,7 +156,7 @@ SERIAL_PORT = 'COM3'
 
 把 `COM3` 改成你在第四步记下的那个 COM 号，保存。
 
-> 💡 `python/conversation_hook.py` 里也有一行 `SERIAL_PORT = 'COM3'`，如果要用对话摘要功能，也一起改。
+
 
 ---
 
@@ -166,44 +166,22 @@ SERIAL_PORT = 'COM3'
 
 ```bash
 # 🟡 等待状态（屏幕显示：AI Agent + STANDBY）
-python python/display_hook.py WAIT
+
 
 # 🟢 成功状态（屏幕显示：AI Agent + SUCCESS）
-python python/display_hook.py SUCCESS
+
 
 # 🔴 失败状态（屏幕显示：AI Agent + FAIL）
-python python/display_hook.py FAIL
+
 
 # ✏️ 自定义文字（黄色区域 | 蓝色区域）
-python python/display_hook.py "AI Agent|你好"
+
 
 # ✏️ 单行文字（显示在蓝色区域）
-python python/display_hook.py hello
+
 ```
 
 ---
-
-## 进阶用法：对话摘要自动推送
-
-用 Hook 脚本把标题和摘要推送到屏幕：
-
-```bash
-# 标题 + 多行摘要（每行一个参数）
-python python/conversation_hook.py "完成开发" "代码已上传" "测试通过" "文档写好"
-
-# 标题 + 摘要（单行）
-python python/conversation_hook.py "完成开发" "代码已上传" 
-```
-
-示例：
-```bash
-python python/conversation_hook.py "BUG修复" "串口编码问题已解决"
-python python/conversation_hook.py "新功能" "屏幕支持中文多行显示" "每行独立居中"
-```
-
-> 💡 标题（黄色区域）最多 10 个中文字 / 20 个英文字母。摘要（蓝色区域）最多 3 行，每行 10 个中文字 / 20 个英文字母。超出的部分不会显示，请精简内容。
->
-> Hook 触发时屏幕会先白黑闪烁 3 次再显示文字，方便你注意到有新消息。手动用 display_hook.py 发送则不会闪烁。
 
 ---
 
@@ -247,10 +225,10 @@ const char* DEF_BOT = "STANDBY";    // 蓝色区域的文字
 | 文件 | 干什么的 |
 |------|---------|
 | `arduino/sketch_jun4a/sketch_jun4a.ino` | 上传到板子里的程序（一次性） |
-| `python/display_hook.py` | 在电脑上运行，给屏幕发消息（常用） |
-| `python/conversation_hook.py` | 对话摘要 Hook，自动生成标题和摘要推送到屏幕 |
-| `hooks/codex_stop_hook.py` | Codex 对话结束自动触发 Hook |
-| `AGENTS.md` | Codex Hook 配置文件 |
+
+
+
+
 | `requirements.txt` | Python 依赖列表 |
 | `docs/项目文档.md` | 技术细节和开发记录 |
 
