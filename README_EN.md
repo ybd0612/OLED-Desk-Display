@@ -1,4 +1,4 @@
-﻿# 🖥️ AI Agent Desktop OLED Display — Beginner Guide
+# 🖥️ AI Agent Desktop OLED Display — Beginner Guide
 
 > A small OLED screen for your desk that shows your AI Agent status in real-time (Working / Success / Failed).
 > 

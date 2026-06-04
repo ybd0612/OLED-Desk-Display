@@ -1,4 +1,4 @@
-﻿# 🖥️ AI Agent 桌面小屏幕 — 小白保姆级教程
+# 🖥️ AI Agent 桌面小屏幕 — 小白保姆级教程
 
 > 这是一个能放在你电脑旁边的 OLED 小屏幕，它会实时显示你的 AI Agent 正在干什么（工作中 / 成功了 / 失败了）。
 > 
@@ -19,6 +19,16 @@
 > 💡 **买板子小贴士**：搜索关键词 "ESP8266 0.96寸 OLED 一体板 NodeMCU"，选带屏幕的版本，买回来直接就能用，不用自己焊。
 > 
 > 🔗 **推荐购买链接**：[淘宝 - ESP8266 OLED 一体板](https://e.tb.cn/h.RhEO5NmkXbNigtq?tk=HTlngZy42Jn)
+
+## 实物展示
+
+<p align="center">
+  <img src="docs/images/display_preview.png" alt="OLED Desk Display 实物图" width="480">
+</p>
+
+<p align="center">
+  <img src="docs/images/demo_animation.gif" alt="OLED Desk Display 效果演示" width="480">
+</p>
 
 ---
 
