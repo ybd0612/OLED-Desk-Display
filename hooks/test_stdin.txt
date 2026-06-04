@@ -1,0 +1,3 @@
+Hook调试
+检查hash配置
+验证hook触发

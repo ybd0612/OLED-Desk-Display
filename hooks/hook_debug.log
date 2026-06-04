@@ -1,0 +1,12 @@
+
+[2026-06-04 13:26:12] Hook triggered
+  stdin length: 9
+  stdin content: '娴嬭瘯鏃ュ織鍐欏叆'
+  parsed lines: ['娴嬭瘯鏃ュ織鍐欏叆']
+  calling: python C:\Users\ybd06\Documents\project\pm\python\conversation_hook.py 娴嬭瘯鏃ュ織鍐欏叆 OK
+  exit: 0
+  stdout: [成功] 已推送到屏幕
+  黄色区域（标题）: 娴嬭瘯鏃ュ織鍐欏叆 (18宽度)
+  蓝色区域第1行: OK (2宽度)
+
+  stderr: 
