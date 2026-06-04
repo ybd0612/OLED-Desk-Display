@@ -40,7 +40,7 @@ const int SCR_W = 128;
 const int SCR_H = 64;
 const int MAX_L = 3;
 
-const char* DEF_TOP = "Ybond";
+const char* DEF_TOP = "AI Agent";
 const char* DEF_BOT = "STANDBY";
 
 // 分隔符（ASCII 控制字符，用户不会手动输入）
