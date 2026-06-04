@@ -48,8 +48,8 @@ pm/
 ├── arduino/sketch_jun4a/     # ESP8266 firmware
 │   └── sketch_jun4a.ino
 ├── python/
-│   ├── display_hook.py       # Manual control
-│   └── conversation_hook.py  # Summary push (with flash)
+│   ├── display_hook.py       # Manual control (status/custom text)
+│   └── conversation_hook.py  # Summary push (with flash, supports --prompt and --stdin)
 ├── hooks/
 │   └── session_start_hook.py # Inject reminder at conversation start
 ├── docs/
@@ -63,10 +63,18 @@ pm/
 
 ## Screen Capacity
 
-| Zone | Location | Chinese | English |
-|------|----------|---------|---------|
-| Yellow (title) | Top 16px | 10 chars | 20 chars |
-| Blue (body) | Bottom 48px | 10 chars × 1-3 lines | 20 chars × 1-3 lines |
+| Zone | Location | Width Limit | Chinese | English |
+|------|----------|-------------|---------|---------|
+| Yellow (title) | Top 16px | 20 | 10 chars | 20 chars |
+| Blue (body) | Bottom 48px | 20 per line | 10 chars × 1-3 lines | 20 chars × 1-3 lines |
+
+**Width calculation**: 1 Chinese char = 2 width, 1 English char = 1 width. Total width limit per line is 20.
+
+### Content Rules
+- **No punctuation** in title or body lines
+- **No truncation** — generate content that fits within limits from the start
+- **Max 3 body lines** — each line independently must fit within 20 width
+- When generating summaries, count width carefully: "你好世界" = 8 width, "Hello" = 5 width
 
 ## Hardware Setup
 

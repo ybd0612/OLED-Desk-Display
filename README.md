@@ -224,15 +224,15 @@ const char* DEF_BOT = "STANDBY";    // 蓝色区域的文字
 
 | 文件 | 干什么的 |
 |------|---------|
-| `arduino/sketch_jun4a/sketch_jun4a.ino` | 上传到板子里的程序（一次性） |
-
-
-
-
-| `requirements.txt` | Python 依赖列表 |
-| `docs/项目文档.md` | 技术细节和开发记录 |
+| rduino/sketch_jun4a/sketch_jun4a.ino | 上传到板子里的程序（一次性） |
+| python/display_hook.py | 手动控制屏幕（状态/自定义文字） |
+| python/conversation_hook.py | 对话摘要推送（支持手动/Prompt/管道模式） |
+| hooks/session_start_hook.py | 对话开始时提醒 agent 推送摘要 |
+| equirements.txt | Python 依赖列表 |
+| docs/项目文档.md | 技术细节和开发记录 |
 
 ---
+
 
 ## 还有问题？
 

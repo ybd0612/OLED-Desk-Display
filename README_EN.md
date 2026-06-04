@@ -187,15 +187,15 @@ Change to whatever you want, then re-upload.
 
 | File | Purpose |
 |------|---------|
-| `arduino/sketch_jun4a/sketch_jun4a.ino` | Program to upload to the board (one-time) |
-| `python/display_hook.py` | Run on PC to send messages to screen (daily use) |
-| `python/conversation_hook.py` | Conversation summary hook |
-
-
-| `requirements.txt` | Python dependencies |
-| `docs/项目文档.md` | Technical details and development log |
+| rduino/sketch_jun4a/sketch_jun4a.ino | Program to upload to the board (one-time) |
+| python/display_hook.py | Manual control (status/custom text) |
+| python/conversation_hook.py | Conversation summary push (supports manual/prompt/pipe modes) |
+| hooks/session_start_hook.py | Remind agent to push summary at conversation start |
+| equirements.txt | Python dependencies |
+| docs/项目文档.md | Technical details and development log |
 
 ---
+
 
 ## More Info
 
