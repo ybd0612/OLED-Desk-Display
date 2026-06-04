@@ -22,3 +22,7 @@ desktop.ini
 .idea/
 
 
+
+hooks/hook_debug.log
+hooks/test_*.txt
+hooks/test_*.json
