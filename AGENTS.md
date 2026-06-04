@@ -12,7 +12,7 @@ This is an ESP8266 + OLED screen project that displays AI Agent status and conve
 
 ### Step 1: Generate Summary
 - **Title** (yellow zone, max 10 Chinese chars / 20 English chars): Main topic/action
-- **Body** (blue zone, 1-3 lines, each max 10 Chinese chars / 20 English chars): Key results
+- **Body** (blue zone, exactly 3 lines, each max 10 Chinese chars / 20 English chars): Key results
 
 ### Step 2: Run This Command
 ```bash

@@ -68,8 +68,9 @@ def extract_summary(message):
     if not clean:
         return "AI Agent", ["STANDBY"]
     
-    title = clean[0]
-    body = clean[1:4] if len(clean) > 1 else ["OK"]
+    title = truncate_cjk(clean[0], 20)  # 截断到20宽度
+    raw_body = clean[1:4] if len(clean) > 1 else ["OK"]
+    body = [truncate_cjk(line, 20) for line in raw_body]  # 截断每行到20宽度
     return title, body
 
 
