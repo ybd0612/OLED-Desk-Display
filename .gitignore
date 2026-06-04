@@ -26,3 +26,5 @@ desktop.ini
 hooks/hook_debug.log
 hooks/test_*.txt
 hooks/test_*.json
+
+hooks/session_start_hook.py
