@@ -1,8 +1,6 @@
-# 🖥️ AI Agent Desktop OLED Display — Beginner Guide
+# AI Agent Desktop OLED Display
 
-> A small OLED screen for your desk that shows your AI Agent status in real-time (Working / Success / Failed).
-> 
-> No programming experience needed — just follow the steps below!
+> A small OLED screen for your desk that automatically shows your AI Agent work summary and status (Success / Failed) after each conversation.
 
 **[中文版本](README.md)** | **[Technical Documentation](docs/项目文档.md)**
 
@@ -12,9 +10,11 @@
 
 | Item | Description | Price |
 |------|-------------|-------|
-| ESP8266 Board | With built-in 0.96" OLED screen ([Buy on Taobao](https://e.tb.cn/h.RhEO5NmkXbNigtq?tk=HTlngZy42Jn) / search "ESP8266 OLED board" on AliExpress) | ~$3-5 |
-| Micro USB Data Cable | For connecting to PC (make sure it supports data, not just charging) | ~$1 |
-| A Computer | Windows or Mac | - |
+| ESP8266 Board | With built-in 0.96" OLED screen ([Buy on Taobao](https://e.tb.cn/h.RhEO5NmkXbNigtq?tk=HTlngZy42Jn) / search "ESP8266 OLED board" on AliExpress) | ~16 CNY (~$2) |
+| Type-C Data Cable | For connecting to PC (make sure it supports data, not just charging) | - |
+| A Computer | Windows 10/11 | - |
+
+> 💡 Search "ESP8266 0.96 OLED NodeMCU" on Taobao. Get the version with built-in screen. Check the connector type — Type-C is more convenient.
 
 ---
 
@@ -32,9 +32,8 @@
 
 Open: **https://www.arduino.cc/en/software**
 
-1. Click **Windows Win 10 and newer** (for Windows 10/11)
-2. For Mac, select the macOS version
-3. Double-click to install, click Next through the wizard
+1. Click **Windows Win 10 and newer**
+2. Double-click to install, click Next through the wizard
 
 ### 2.2 Add ESP8266 Support
 
@@ -69,7 +68,7 @@ Open: **https://www.arduino.cc/en/software**
 
 ### 4.1 Connect Board to PC
 
-Plug the Micro USB cable from the board to your computer.
+Plug the Type-C cable from the board to your computer.
 
 > ⚠️ Some cables only support charging! If your PC doesn't detect the board, try a different cable.
 
@@ -124,28 +123,28 @@ SERIAL_PORT = 'COM3'
 
 Change `COM3` to your actual COM number, save.
 
-> 💡 If you want the conversation summary hook, also update the same line in `python/conversation_hook.py`.
+> 💡 `python/conversation_hook.py` has the same config — update it too.
 
 ---
 
-## Step 6: Start Using! 🎉
+## Step 6: Start Using 🎉
 
 Open Command Prompt, navigate to the project folder, then:
 
 ```bash
-# 🟡 Standby (shows: AI Agent + STANDBY)
+# Standby (shows: AI Agent + STANDBY)
 python python/display_hook.py WAIT
 
-# 🟢 Success (shows: AI Agent + SUCCESS)
+# Success (shows: AI Agent + SUCCESS)
 python python/display_hook.py SUCCESS
 
-# 🔴 Failed (shows: AI Agent + FAIL)
+# Failed (shows: AI Agent + FAIL)
 python python/display_hook.py FAIL
 
-# ✏️ Custom text (yellow zone | blue zone)
+# Custom text (yellow zone | blue zone)
 python python/display_hook.py "AI Agent|Hello"
 
-# ✏️ Single line (shows in blue zone)
+# Single line (shows in blue zone)
 python python/display_hook.py hello
 ```
 
@@ -156,7 +155,7 @@ python python/display_hook.py hello
 Open `arduino/sketch_jun4a/sketch_jun4a.ino`, find:
 
 ```cpp
-const char* DEF_TOP = "AI Agent";      // Yellow zone text
+const char* DEF_TOP = "AI Agent";   // Yellow zone text
 const char* DEF_BOT = "STANDBY";    // Blue zone text
 ```
 
@@ -187,15 +186,14 @@ Change to whatever you want, then re-upload.
 
 | File | Purpose |
 |------|---------|
-| rduino/sketch_jun4a/sketch_jun4a.ino | Program to upload to the board (one-time) |
-| python/display_hook.py | Manual control (status/custom text) |
-| python/conversation_hook.py | Conversation summary push (supports manual/prompt/pipe modes) |
-| hooks/session_start_hook.py | Remind agent to push summary at conversation start |
-| equirements.txt | Python dependencies |
-| docs/项目文档.md | Technical details and development log |
+| `arduino/sketch_jun4a/sketch_jun4a.ino` | Program to upload to the board (one-time) |
+| `python/display_hook.py` | Manual control (status/custom text) |
+| `python/conversation_hook.py` | Conversation summary push (supports manual/prompt/pipe modes) |
+| `hooks/session_start_hook.py` | Remind agent to push summary at conversation start |
+| `requirements.txt` | Python dependencies |
+| `docs/项目文档.md` | Technical details and development log |
 
 ---
-
 
 ## More Info
 

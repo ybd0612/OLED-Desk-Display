@@ -1,8 +1,6 @@
-# 🖥️ AI Agent 桌面小屏幕 — 小白保姆级教程
+# AI Agent 桌面小屏幕
 
-> 这是一个能放在你电脑旁边的 OLED 小屏幕，它会实时显示你的 AI Agent 正在干什么（工作中 / 成功了 / 失败了）。
-> 
-> 完全不需要编程基础，跟着下面的步骤一步一步来就行！
+> 一个放在电脑旁边的 OLED 小屏幕，每次对话结束后自动显示 AI Agent 的工作摘要和状态（成功 / 失败）。
 
 **[English Version](README_EN.md)** | **[技术文档](docs/项目文档.md)**
 
@@ -12,12 +10,12 @@
 
 | 材料 | 说明 | 参考价格 |
 |------|------|---------|
-| ESP8266 一体板 | 带 0.96 寸 OLED 屏幕的那种（淘宝搜 "ESP8266 OLED 一体板"） | ￥15-25 |
-| Micro USB 数据线 | 连接电脑用的，注意要能传数据的那种，不能只能充电 | ￥5 |
-| 一台电脑 | Windows / Mac 都行 | - |
+| ESP8266 一体板 | 带 0.96 寸 OLED 屏幕的那种（淘宝搜 "ESP8266 OLED 一体板"） | ￥16 |
+| Type-C 数据线 | 连接电脑用的，注意要能传数据的那种，不能只能充电 | - |
+| 一台电脑 | Windows 10/11 | - |
 
-> 💡 **买板子小贴士**：搜索关键词 "ESP8266 0.96寸 OLED 一体板 NodeMCU"，选带屏幕的版本，买回来直接就能用，不用自己焊。
-> 
+> 💡 **买板子小贴士**：搜索关键词 "ESP8266 0.96寸 OLED 一体板 NodeMCU"，选带屏幕的版本，买回来直接就能用，不用自己焊。注意确认接口是 Type-C 还是 Micro USB，Type-C 更方便。
+>
 > 🔗 **推荐购买链接**：[淘宝 - ESP8266 OLED 一体板](https://e.tb.cn/h.RhEO5NmkXbNigtq?tk=HTlngZy42Jn)
 
 ## 实物展示
@@ -40,15 +38,14 @@
 
 ---
 
-## 第二步：安装 Arduino IDE（编程软件）
+## 第二步：安装 Arduino IDE
 
 ### 2.1 下载 Arduino IDE
 
 打开这个网址下载：**https://www.arduino.cc/en/software**
 
-1. 点击 **Windows Win 10 and newer**（如果你是 Windows 10/11）
-2. 如果是 Mac 选择对应的 macOS 版本
-3. 下载完双击安装，一路点下一步就行
+1. 点击 **Windows Win 10 and newer**
+2. 下载完双击安装，一路点下一步就行
 
 ### 2.2 添加 ESP8266 支持
 
@@ -89,7 +86,7 @@ Arduino IDE 本身不认识我们的小板子，需要告诉它去哪里找：
 
 ### 4.1 用数据线把板子连上电脑
 
-把 Micro USB 数据线一头插板子，一头插电脑 USB 口。
+把 Type-C 数据线一头插板子，一头插电脑 USB 口。
 
 > ⚠️ **注意**：有些充电线只能充电不能传数据！如果电脑没反应（设备管理器里看不到 COM 口），换一根线试试。
 
@@ -148,7 +145,7 @@ pip install -r requirements.txt
 
 ### 5.3 修改 COM 号
 
-
+打开 `python/display_hook.py`，找到：
 
 ```python
 SERIAL_PORT = 'COM3'
@@ -156,32 +153,30 @@ SERIAL_PORT = 'COM3'
 
 把 `COM3` 改成你在第四步记下的那个 COM 号，保存。
 
-
+> 💡 `python/conversation_hook.py` 里也有同样的配置，记得一起改。
 
 ---
 
-## 第六步：开始使用！🎉
+## 第六步：开始使用 🎉
 
 打开命令提示符（`Win + R` → `cmd` → 回车），进入项目文件夹，然后：
 
 ```bash
-# 🟡 等待状态（屏幕显示：AI Agent + STANDBY）
+# 等待状态（屏幕显示：AI Agent + STANDBY）
+python python/display_hook.py WAIT
 
+# 成功状态（屏幕显示：AI Agent + SUCCESS）
+python python/display_hook.py SUCCESS
 
-# 🟢 成功状态（屏幕显示：AI Agent + SUCCESS）
+# 失败状态（屏幕显示：AI Agent + FAIL）
+python python/display_hook.py FAIL
 
+# 自定义文字（黄色区域 | 蓝色区域）
+python python/display_hook.py "AI Agent|你好"
 
-# 🔴 失败状态（屏幕显示：AI Agent + FAIL）
-
-
-# ✏️ 自定义文字（黄色区域 | 蓝色区域）
-
-
-# ✏️ 单行文字（显示在蓝色区域）
-
+# 单行文字（显示在蓝色区域）
+python python/display_hook.py hello
 ```
-
----
 
 ---
 
@@ -190,7 +185,7 @@ SERIAL_PORT = 'COM3'
 用记事本打开 `arduino/sketch_jun4a/sketch_jun4a.ino`，找到这两行：
 
 ```cpp
-const char* DEF_TOP = "AI Agent";      // 黄色区域的文字
+const char* DEF_TOP = "AI Agent";   // 黄色区域的文字
 const char* DEF_BOT = "STANDBY";    // 蓝色区域的文字
 ```
 
@@ -207,7 +202,7 @@ const char* DEF_BOT = "STANDBY";    // 蓝色区域的文字
 **A：** 检查一下你买的板子是不是自带屏幕的版本。如果是分体式的，需要自己接线（SCL→D6, SDA→D5）。
 
 ### Q：Python 脚本报 "无法连接到屏幕硬件"
-**A：** 
+**A：**
 1. 检查 COM 号对不对
 2. 检查 Arduino IDE 的串口监视器有没有关掉（同一时间只能一个程序连串口）
 3. 拔掉数据线重新插
@@ -222,17 +217,16 @@ const char* DEF_BOT = "STANDBY";    // 蓝色区域的文字
 
 ## 项目文件说明
 
-| 文件 | 干什么的 |
-|------|---------|
-| rduino/sketch_jun4a/sketch_jun4a.ino | 上传到板子里的程序（一次性） |
-| python/display_hook.py | 手动控制屏幕（状态/自定义文字） |
-| python/conversation_hook.py | 对话摘要推送（支持手动/Prompt/管道模式） |
-| hooks/session_start_hook.py | 对话开始时提醒 agent 推送摘要 |
-| equirements.txt | Python 依赖列表 |
-| docs/项目文档.md | 技术细节和开发记录 |
+| 文件 | 说明 |
+|------|------|
+| `arduino/sketch_jun4a/sketch_jun4a.ino` | 上传到板子里的程序（一次性） |
+| `python/display_hook.py` | 手动控制屏幕（状态/自定义文字） |
+| `python/conversation_hook.py` | 对话摘要推送（支持手动/Prompt/管道模式） |
+| `hooks/session_start_hook.py` | 对话开始时提醒 agent 推送摘要 |
+| `requirements.txt` | Python 依赖列表 |
+| `docs/项目文档.md` | 技术细节和开发记录 |
 
 ---
-
 
 ## 还有问题？
 
