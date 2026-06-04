@@ -133,17 +133,17 @@ Change `COM3` to your actual COM number, save.
 Open Command Prompt, navigate to the project folder, then:
 
 ```bash
-# 🟡 Standby (shows: Ybond + STANDBY)
+# 🟡 Standby (shows: AI Agent + STANDBY)
 python python/display_hook.py WAIT
 
-# 🟢 Success (shows: Ybond + SUCCESS)
+# 🟢 Success (shows: AI Agent + SUCCESS)
 python python/display_hook.py SUCCESS
 
-# 🔴 Failed (shows: Ybond + FAIL)
+# 🔴 Failed (shows: AI Agent + FAIL)
 python python/display_hook.py FAIL
 
 # ✏️ Custom text (yellow zone | blue zone)
-python python/display_hook.py "Ybond|Hello"
+python python/display_hook.py "AI Agent|Hello"
 
 # ✏️ Single line (shows in blue zone)
 python python/display_hook.py hello
@@ -174,7 +174,7 @@ python python/conversation_hook.py "Project Done" "Code uploaded"
 Open `arduino/sketch_jun4a/sketch_jun4a.ino`, find:
 
 ```cpp
-const char* DEF_TOP = "Ybond";      // Yellow zone text
+const char* DEF_TOP = "AI Agent";      // Yellow zone text
 const char* DEF_BOT = "STANDBY";    // Blue zone text
 ```
 

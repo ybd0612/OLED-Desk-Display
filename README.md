@@ -165,17 +165,17 @@ SERIAL_PORT = 'COM3'
 打开命令提示符（`Win + R` → `cmd` → 回车），进入项目文件夹，然后：
 
 ```bash
-# 🟡 等待状态（屏幕显示：Ybond + STANDBY）
+# 🟡 等待状态（屏幕显示：AI Agent + STANDBY）
 python python/display_hook.py WAIT
 
-# 🟢 成功状态（屏幕显示：Ybond + SUCCESS）
+# 🟢 成功状态（屏幕显示：AI Agent + SUCCESS）
 python python/display_hook.py SUCCESS
 
-# 🔴 失败状态（屏幕显示：Ybond + FAIL）
+# 🔴 失败状态（屏幕显示：AI Agent + FAIL）
 python python/display_hook.py FAIL
 
 # ✏️ 自定义文字（黄色区域 | 蓝色区域）
-python python/display_hook.py "Ybond|你好"
+python python/display_hook.py "AI Agent|你好"
 
 # ✏️ 单行文字（显示在蓝色区域）
 python python/display_hook.py hello
@@ -212,7 +212,7 @@ python python/conversation_hook.py "新功能" "屏幕支持中文多行显示" 
 用记事本打开 `arduino/sketch_jun4a/sketch_jun4a.ino`，找到这两行：
 
 ```cpp
-const char* DEF_TOP = "Ybond";      // 黄色区域的文字
+const char* DEF_TOP = "AI Agent";      // 黄色区域的文字
 const char* DEF_BOT = "STANDBY";    // 蓝色区域的文字
 ```
 
