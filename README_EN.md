@@ -6,6 +6,25 @@
 
 ---
 
+## Design Philosophy
+
+### Why AI Agent Summarizes Instead of Hook Auto-Capture
+
+Hook scripts can only mechanically capture and pass raw text — they cannot summarize. If a conversation is long, the captured snippet often lacks context and is hard to understand.
+
+That is why the project uses **AGENTS.md + conversation_hook.py** together:
+- **AGENTS.md** instructs the AI to understand the conversation and generate a concise summary that fits the screen limits
+- **conversation_hook.py** pushes the summary to the screen
+
+### Why Flash the Screen
+
+Simply switching text on screen is easy to miss, especially in peripheral vision. That is why the screen **flashes 3 times** before showing the summary — to make sure you notice.
+
+This is why there are two scripts:
+- **display_hook.py** — manual control, switches text directly, no flash (good for debugging)
+- **conversation_hook.py** — AI conversation summary, flashes the screen (designed for daily use)
+
+
 ## What You Need
 
 | Item | Description | Price |
