@@ -28,3 +28,6 @@ Thumbs.db
 *.elf
 # Hook marker file
 python/.hook_called
+
+# Agents toggle state
+python/.agents_enabled

@@ -182,6 +182,31 @@ Change to whatever you want, then re-upload.
 
 ---
 
+## Web Canvas (New Feature)
+
+Draw, type, and upload images to push to the OLED screen via a web interface.
+
+### Features
+
+- **Draw/Erase** - Freehand drawing on 128x64 canvas
+- **Text** - Multi-line input with font size and alignment options
+- **Image upload** - Auto-scaled with Floyd-Steinberg dithering
+- **Dual-color preview** - Yellow top / blue bottom matching the real OLED
+- **Agents toggle** - Enable/disable conversation_hook auto-push
+- **Auto-save** - Canvas content saved in localStorage
+
+### Usage
+
+1. Double-click `start_oled_canvas.bat` (or run `python python/web_server.py`)
+2. Browser opens automatically
+3. Draw and click **Send to Screen**
+
+### One-click Flash
+
+Double-click `flash.bat` to compile and upload Arduino firmware (first time takes 2-3 minutes).
+
+---
+
 ## FAQ
 
 ### Q: Upload error "COM port busy"
@@ -208,7 +233,10 @@ Change to whatever you want, then re-upload.
 | `arduino/sketch_jun4a/sketch_jun4a.ino` | Program to upload to the board (one-time) |
 | `python/display_hook.py` | Manual control (status/custom text) |
 | `python/conversation_hook.py` | Conversation summary push (supports manual/prompt/pipe modes) |
+| `python/web_server.py` | Web Canvas - draw, type, upload images, push to OLED |
 | `hooks/session_start_hook.py` | Remind agent to push summary at conversation start |
+| `start_oled_canvas.bat` | One-click launch Web Canvas server |
+| `flash.bat` | One-click compile and flash Arduino firmware |
 | `requirements.txt` | Python dependencies |
 | `docs/项目文档.md` | Technical details and development log |
 

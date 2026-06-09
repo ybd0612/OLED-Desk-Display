@@ -227,6 +227,33 @@ const char* DEF_BOT = "STANDBY";    // 蓝色区域的文字
 
 ---
 
+## Web Canvas 画布控制（新功能）
+
+除了命令行推送，还可以通过网页画布自由创作内容推送到屏幕。
+
+### 功能
+
+- **画笔/橡皮** — 在 128x64 画布上自由画画
+- **文字输入** — 多行文本，可选字体大小和对齐方式，实时预览
+- **图片上传** — 自动缩放并二值化（Floyd-Steinberg 抖动算法）
+- **双色模拟** — 画布上半黄色下半蓝色，所见即所得
+- **Agents 开关** — 控制 conversation_hook 是否能推送消息
+- **自动保存** — 画布和设置保存在浏览器 localStorage，刷新不丢失
+
+### 使用方式
+
+1. 双击 `start_oled_canvas.bat`（或运行 `python python\web_server.py`）
+2. 浏览器自动打开画布页面
+3. 画完点 **发送到屏幕** 即可
+
+### 一键烧录固件
+
+修改 Arduino 代码后，双击 `flash.bat` 即可一键编译+烧录（首次编译需 2-3 分钟）。
+
+> 💡 Web Canvas 需要更新的 Arduino 固件支持位图模式。首次使用请先用 `flash.bat` 或 Arduino IDE 上传固件。
+
+---
+
 ## 常见问题
 
 ### Q：上传时报错 "COM 口被占用"
@@ -256,7 +283,10 @@ const char* DEF_BOT = "STANDBY";    // 蓝色区域的文字
 | `arduino/sketch_jun4a/sketch_jun4a.ino` | 上传到板子里的程序（一次性） |
 | `python/display_hook.py` | 手动控制屏幕（状态/自定义文字） |
 | `python/conversation_hook.py` | 对话摘要推送（支持手动/Prompt/管道模式） |
+| `python/web_server.py` | Web Canvas 画布控制（画画/文字/图片推送） |
 | `hooks/session_start_hook.py` | 对话开始时提醒 agent 推送摘要 |
+| `start_oled_canvas.bat` | 一键启动 Web Canvas 服务 |
+| `flash.bat` | 一键编译烧录 Arduino 固件 |
 | `requirements.txt` | Python 依赖列表 |
 | `docs/项目文档.md` | 技术细节和开发记录 |
 

@@ -48,9 +48,13 @@ const char SEP_ZONE = 0x1F;   // Unit Separator: 分隔上下区域
 const char SEP_LINE = 0x1E;   // Record Separator: 分隔蓝色区域行
 const char SEP_FLASH = 0x1C;  // File Separator: 标记闪烁前缀
 
+// 位图模式
+const char* CMD_BITMAP = "BITMAP";
+const int BITMAP_SIZE = 1024;  // 128*64/8 = 1024 bytes
+
 // 函数前置声明
 void showCustom(String top, String bottom, bool shouldFlash = false);
-
+void showBitmap();
 void setup(void) {
   Serial.begin(BAUD_RATE);
   u8g2.begin();
@@ -62,7 +66,9 @@ void loop(void) {
   if (Serial.available() > 0) {
     String cmd = Serial.readStringUntil('\n');
     cmd.trim();
-    if (cmd == "SUCCESS") {
+    if (cmd == CMD_BITMAP) {
+      showBitmap();
+    } else if (cmd == "SUCCESS") {
       showSuccess();
     } else if (cmd == "FAIL") {
       showFail();
@@ -83,6 +89,36 @@ void loop(void) {
     } else {
       showCustom(DEF_TOP, cmd);
     }
+  }
+}
+
+/**
+ * 位图模式：接收 1024 字节的 XBM 数据并全屏显示
+ * 协议：Python 先发 "BITMAP\n"，再发 1024 字节原始位图数据
+ */
+void showBitmap() {
+  uint8_t buf[BITMAP_SIZE];
+
+  // 握手：告诉Python已准备好接收位图数据
+  Serial.write('R');
+
+  int received = 0;
+  unsigned long start = millis();
+
+  while (received < BITMAP_SIZE && (millis() - start) < 5000) {
+    if (Serial.available() > 0) {
+      int bytesRead = Serial.readBytes(buf + received, BITMAP_SIZE - received);
+      received += bytesRead;
+    }
+  }
+
+  if (received >= BITMAP_SIZE) {
+    u8g2.clearBuffer();
+    u8g2.drawXBM(0, 0, SCR_W, SCR_H, buf);
+    u8g2.sendBuffer();
+    Serial.write('K');  // OK
+  } else {
+    Serial.write('E');  // Error
   }
 }
 

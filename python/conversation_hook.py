@@ -31,6 +31,7 @@ import serial
 import sys
 import time
 
+
 # ============================================================
 # 配置区
 # ============================================================
@@ -42,6 +43,17 @@ TITLE_MAX = 10        # 黄色区域：最多 10 个中文字（或 20 个英文
 BODY_MAX_PER_LINE = 10  # 蓝色区域：每行最多 10 个中文字
 BODY_MAX_LINES = 3      # 蓝色区域：最多 3 行
 BODY_MAX_TOTAL = BODY_MAX_PER_LINE * BODY_MAX_LINES  # 总共 30 个中文字
+
+AGENTS_FLAG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.agents_enabled')
+
+def is_agents_enabled():
+    """检查Agents开关文件是否存在且内容为1"""
+    try:
+        with open(AGENTS_FLAG_FILE, 'r') as f:
+            return f.read().strip() == '1'
+    except FileNotFoundError:
+        # 文件不存在默认开启
+        return True
 
 
 # ============================================================
@@ -109,6 +121,11 @@ def send_to_screen(title, body_lines):
         title (str): 标题（黄色区域，单行）
         body_lines (list): 摘要行列表（蓝色区域，最多3行）
     """
+    # 检查Agents开关
+    if not is_agents_enabled():
+        print("[跳过] Agents开关已关闭，不发送到屏幕")
+        return False
+
     # 检查标题
     check_and_warn(title, TITLE_MAX * 2, "标题")
 
