@@ -1,0 +1,1448 @@
+<html lang="zh">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>OLED Canvas</title>
+
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#1a1a2e;color:#e0e0e0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:16px}
+
+h1{font-size:18px;margin-bottom:12px;color:#00d4ff}
+
+.toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;justify-content:center}
+
+.toolbar button,.toolbar select,.toolbar input[type="range"]{padding:6px 14px;border:1px solid #444;border-radius:6px;background:#2a2a4a;color:#e0e0e0;cursor:pointer;font-size:13px}
+
+.toolbar button:hover{background:#3a3a6a}
+
+.toolbar button.active{background:#00d4ff;color:#000;border-color:#00d4ff}
+
+.canvas-wrap{position:relative;border:2px solid #00d4ff;border-radius:8px;background:#000;overflow:hidden}
+
+canvas#preview{display:block;image-rendering:pixelated}
+
+.text-panel{display:none;margin-top:12px;width:100%;max-width:540px}
+
+.status{margin-top:12px;padding:8px 16px;border-radius:6px;font-size:13px;min-height:36px;text-align:center}
+
+.status.ok{background:#0a3a0a;color:#4f4}
+
+.status.err{background:#3a0a0a;color:#f44}
+
+.status.info{background:#0a2a3a;color:#4df}
+
+.send-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:center}
+
+.send-row button{padding:10px 28px;border:none;border-radius:8px;font-size:15px;cursor:pointer;font-weight:600}
+
+#btnSendBitmap{background:#ff6b6b;color:#fff}
+
+#btnClear{background:#444;color:#e0e0e0}
+
+#btnUndo{background:#444;color:#e0e0e0}
+
+.help{margin-top:16px;font-size:12px;color:#888;text-align:center;max-width:540px}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>OLED Canvas (128 x 64)</h1>
+
+
+
+<div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
+
+  <label style="cursor:pointer;display:flex;align-items:center;gap:6px;font-size:13px;">
+
+    <span>Agents</span>
+
+    <input type="checkbox" id="agentsToggle" onchange="toggleAgents(this.checked)" style="width:16px;height:16px;cursor:pointer;">
+
+    <span id="agentsLabel" style="font-size:12px;color:#888;">关闭</span>
+
+  </label>
+
+</div>
+
+
+
+<div id="canvasArea">
+
+<div class="toolbar">
+
+  <button id="toolDraw" class="active" onclick="setTool('draw')">画笔</button>
+
+  <button id="toolErase" onclick="setTool('erase')">橡皮</button>
+
+  <button id="toolText" onclick="setTool('text')">文字</button>
+
+  <button id="toolImage" onclick="setTool('image')">图片</button>
+
+  <button id="toolGif" onclick="setTool('gif')">GIF</button>
+
+  <button id="btnUndo" onclick="undo()">撤销</button>
+
+  <button id="btnClear" onclick="clearCanvas()">清空</button>
+
+  <label style="display:flex;align-items:center;gap:4px;font-size:12px;">
+
+    粗细 <input type="range" id="brushSize" min="1" max="4" value="1" style="width:60px;">
+
+  </label>
+
+</div>
+
+
+
+<div class="text-panel" id="textPanel">
+
+  <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;">
+
+    <textarea id="textInput" rows="3" placeholder="输入要显示的文字" style="flex:1;min-width:200px;padding:8px;border:1px solid #444;border-radius:6px;background:#2a2a4a;color:#e0e0e0;font-size:14px;resize:vertical;"></textarea>
+
+    <div style="display:flex;flex-direction:column;gap:6px;">
+
+      <select id="textSize" style="padding:6px;border:1px solid #444;border-radius:6px;background:#2a2a4a;color:#e0e0e0;font-size:12px;">
+
+        <option value="8">8px</option>
+
+        <option value="10">10px</option>
+
+        <option value="12" selected>12px 标准</option>
+
+        <option value="14">14px</option>
+
+        <option value="16">16px 大</option>
+
+        <option value="20">20px</option>
+
+      </select>
+
+      <select id="textAlign" style="padding:6px;border:1px solid #444;border-radius:6px;background:#2a2a4a;color:#e0e0e0;font-size:12px;">
+
+        <option value="left">左对齐</option>
+
+        <option value="center" selected>居中</option>
+
+        <option value="right">右对齐</option>
+
+      </select>
+
+
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<input type="file" id="fileInput" accept="image/*" style="display:none" onchange="loadImage(event)">
+
+<input type="file" id="gifInput" accept="image/gif" style="display:none" onchange="loadGif(event)">
+
+
+
+<div class="canvas-wrap">
+
+  <canvas id="preview" width="128" height="64" style="width:512px;height:256px;"></canvas>
+
+</div>
+
+
+
+<div class="send-row">
+
+  <button id="btnSendBitmap" onclick="sendBitmap()">发送到屏幕</button>
+
+</div>
+
+<div id="overlayControls" style="display:none;margin-top:8px;gap:8px;justify-content:center;">
+
+  <button onclick="confirmOverlay()" style="padding:8px 20px;border:none;border-radius:6px;background:#4f4;color:#000;font-size:14px;cursor:pointer;font-weight:600;">确认</button>
+
+  <button onclick="cancelOverlay()" style="padding:8px 20px;border:1px solid #444;border-radius:6px;background:#444;color:#e0e0e0;font-size:14px;cursor:pointer;">取消</button>
+
+  <span style="font-size:12px;color:#888;display:flex;align-items:center;">拖拽移动 滚轮缩放</span>
+
+</div>
+
+
+
+<div class="status info" id="status">检测中...</div>
+
+<div id="gifControls" style="display:none;margin-top:8px;gap:8px;align-items:center;justify-content:center;">
+
+  <span style="font-size:12px;color:#888;" id="gifInfo"></span>
+
+  <button onclick="playGif()" style="padding:4px 12px;border:1px solid #444;border-radius:6px;background:#2a2a4a;color:#e0e0e0;font-size:12px;cursor:pointer;">播放</button>
+
+  <button onclick="stopGif()" style="padding:4px 12px;border:1px solid #444;border-radius:6px;background:#2a2a4a;color:#e0e0e0;font-size:12px;cursor:pointer;">停止</button>
+
+  <button onclick="sendGifOnce()" style="padding:4px 12px;border:1px solid #444;border-radius:6px;background:#2a2a4a;color:#e0e0e0;font-size:12px;cursor:pointer;">发送当前帧</button>
+
+</div>
+
+
+
+<div class="help">
+
+  画笔画画 / 橡皮擦除 / 文字模式点预览后写入画布 / 图片自动缩放二值化<br>
+
+  黄色=上半区域 蓝色=下半区域 所见即所得预览
+
+</div>
+
+
+
+</div>
+
+
+
+<script>
+
+const W=128,H=64,BITMAP_SIZE=1024;
+
+const canvas=document.getElementById('preview');
+
+const ctx=canvas.getContext('2d');
+
+let tool='draw',drawing=false,history=[],brushSz=1;
+
+let lastX=-1,lastY=-1;
+
+
+
+function initCanvas(){
+
+  ctx.fillStyle='#1a1500';ctx.fillRect(0,0,W,16);
+
+  ctx.fillStyle='#000';ctx.fillRect(0,16,W,1);
+
+  ctx.fillStyle='#000a1a';ctx.fillRect(0,17,W,47);
+
+}
+
+if(!restoreCanvas())initCanvas();
+
+
+
+function saveState(){if(history.length>30)history.shift();history.push(ctx.getImageData(0,0,W,H));}
+
+function undo(){cancelOverlayIfActive();if(history.length===0)return;ctx.putImageData(history.pop(),0);saveCanvas();setStatus('已撤销','info');}
+
+function clearCanvas(){cancelOverlayIfActive();saveState();initCanvas();saveCanvas();setStatus('已清空','info');}
+
+
+
+document.getElementById('brushSize').addEventListener('input',e=>{brushSz=parseInt(e.target.value);});
+
+
+
+function getPos(e){
+
+  const rect=canvas.getBoundingClientRect();
+
+  const scaleX=W/rect.width,scaleY=H/rect.height;
+
+  const clientX=e.touches?e.touches[0].clientX:e.clientX;
+
+  const clientY=e.touches?e.touches[0].clientY:e.clientY;
+
+  return{x:Math.floor((clientX-rect.left)*scaleX),y:Math.floor((clientY-rect.top)*scaleY)};
+
+}
+
+
+
+canvas.addEventListener('mousedown',onDown);
+
+canvas.addEventListener('mousemove',onMove);
+
+canvas.addEventListener('mouseup',onUp);
+
+canvas.addEventListener('mouseleave',onUp);
+
+canvas.addEventListener('touchstart',e=>{e.preventDefault();onDown(e);});
+
+canvas.addEventListener('touchmove',e=>{e.preventDefault();onMove(e);});
+
+canvas.addEventListener('touchend',e=>{e.preventDefault();onUp(e);});
+
+document.addEventListener('keydown',function(e){
+
+  if(overlayImg&&(e.key==='Escape'||e.key==='Delete')){cancelOverlay();}
+
+});
+
+
+
+function onDown(e){
+
+  if(overlayImg)return;
+
+  if(tool==='text')return;
+
+  if(tool==='draw'||tool==='erase'){saveState();drawing=true;const p=getPos(e);lastX=p.x;lastY=p.y;drawDot(p.x,p.y);}
+
+}
+
+function onMove(e){
+
+  if(!drawing)return;const p=getPos(e);drawLine(lastX,lastY,p.x,p.y);lastX=p.x;lastY=p.y;
+
+}
+
+function onUp(){drawing=false;lastX=-1;lastY=-1;}
+
+
+
+function drawLine(x0,y0,x1,y1){
+
+  const dx=Math.abs(x1-x0),dy=Math.abs(y1-y0);
+
+  const sx=x0<x1?1:-1,sy=y0<y1?1:-1;
+
+  let err=dx-dy;
+
+  while(true){drawDot(x0,y0);if(x0===x1&&y0===y1)break;const e2=2*err;if(e2>-dy){err-=dy;x0+=sx;}if(e2<dx){err+=dx;y0+=sy;}}
+
+}
+
+
+
+function getZoneColor(y){return y<16?'#ffcc00':'#00aaff';}
+
+function drawDot(x,y){
+
+  if(x<0||x>=W||y<0||y>=H)return;
+
+  ctx.fillStyle=tool==='erase'?(y<16?'#1a1500':y===16?'#000':'#000a1a'):getZoneColor(y);
+
+  if(brushSz===1){ctx.fillRect(x,y,1,1);}
+
+  else{const r=brushSz;ctx.fillRect(x-r+1,y-r+1,r*2-1,r*2-1);}
+
+}
+
+
+
+// Text
+
+let textPreviewData=null;
+
+function previewText(){
+
+  const txt=document.getElementById('textInput').value;
+
+  if(!txt.trim()){setStatus('请输入文字','err');return;}
+
+  const size=parseInt(document.getElementById('textSize').value);
+
+  const align=document.getElementById('textAlign').value;
+
+  if(textPreviewData)ctx.putImageData(textPreviewData,0,0);
+
+  textPreviewData=ctx.getImageData(0,0,W,H);
+
+  initCanvas();
+
+  const lines=txt.split('\n');
+
+  const lineH=Math.ceil(size*1.3);
+
+  const totalH=lines.length*lineH;
+
+  const startY=Math.max(0,Math.floor((H-totalH)/2));
+
+  ctx.textBaseline='top';
+
+  for(let i=0;i<lines.length;i++){
+
+    const y=startY+i*lineH;
+
+    ctx.font=size+'px monospace';ctx.fillStyle=getZoneColor(y);
+
+    let x;const w=ctx.measureText(lines[i]).width;
+
+    if(align==='center')x=Math.floor((W-w)/2);
+
+    else if(align==='right')x=W-w-2;else x=2;
+
+    if(x<0)x=0;ctx.fillText(lines[i],x,y);
+
+  }
+
+  setStatus('预览中 点写入画布确认','info');
+
+}
+
+document.getElementById('textInput').addEventListener('input',()=>{clearTimeout(previewTimer);previewTimer=setTimeout(previewText,300);});
+
+let previewTimer=null;
+
+document.getElementById('textSize').addEventListener('change',()=>{if(document.getElementById('textInput').value.trim())previewText();});
+
+document.getElementById('textAlign').addEventListener('change',()=>{if(document.getElementById('textInput').value.trim())previewText();});
+
+
+
+// Image
+
+// Draggable image overlay
+
+let overlayImg=null,overlayX=0,overlayY=0,overlayScale=1,overlayDragging=false,overlayStartX=0,overlayStartY=0;
+
+let overlaySavedCanvas=null;
+
+
+
+function loadImage(e){
+
+  const file=e.target.files[0];if(!file)return;
+
+  const reader=new FileReader();
+
+  reader.onload=function(ev){
+
+    const img=new Image();
+
+    img.onload=function(){startOverlay(img);};
+
+    img.src=ev.target.result;
+
+  };reader.readAsDataURL(file);e.target.value='';
+
+}
+
+
+
+function startOverlay(img){
+
+  overlayImg=img;
+
+  overlayScale=Math.min(W/img.width,H/img.height);
+
+  overlayX=Math.floor((W-img.width*overlayScale)/2);
+
+  overlayY=Math.floor((H-img.height*overlayScale)/2);
+
+  overlaySavedCanvas=ctx.getImageData(0,0,W,H);
+
+  document.getElementById('overlayControls').style.display='flex';
+
+  setStatus('拖拽移动 滚轮缩放 ESC取消','info');
+
+  renderOverlay();
+
+}
+
+
+
+function renderOverlay(){
+
+  if(!overlayImg)return;
+
+  // Restore saved canvas
+
+  if(overlaySavedCanvas)ctx.putImageData(overlaySavedCanvas,0,0);
+
+  else{initCanvas();}
+
+  // Draw image to temp canvas, then dither and draw to main canvas
+
+  const dw=Math.floor(overlayImg.width*overlayScale);
+
+  const dh=Math.floor(overlayImg.height*overlayScale);
+
+  const tmp=document.createElement('canvas');tmp.width=dw;tmp.height=dh;
+
+  const tc=tmp.getContext('2d',{willReadFrequently:true});
+
+  tc.drawImage(overlayImg,0,0,dw,dh);
+
+  const imgData=tc.getImageData(0,0,dw,dh);const data=imgData.data;
+
+  // Grayscale + dither at overlay position
+
+  const gray=new Float32Array(dw*dh);
+
+  for(let i=0;i<dw*dh;i++){gray[i]=0.299*data[i*4]+0.587*data[i*4+1]+0.114*data[i*4+2];}
+
+  for(let y=0;y<dh;y++){for(let x=0;x<dw;x++){
+
+    const idx=y*dw+x;const old=gray[idx];const nv=old>127?255:0;gray[idx]=nv;const err=old-nv;
+
+    if(x+1<dw)gray[idx+1]+=err*7/16;
+
+    if(y+1<dh){if(x>0)gray[idx+dw-1]+=err*3/16;gray[idx+dw]+=err*5/16;if(x+1<dw)gray[idx+dw+1]+=err*1/16;}
+
+  }}
+
+  // Draw dithered pixels at overlay position with zone colors
+
+  for(let y=0;y<dh;y++){
+
+    const canvasY=overlayY+y;
+
+    if(canvasY<0||canvasY>=H)continue;
+
+    for(let x=0;x<dw;x++){
+
+      const canvasX=overlayX+x;
+
+      if(canvasX<0||canvasX>=W)continue;
+
+      if(gray[y*dw+x]>127){
+
+        ctx.fillStyle=getZoneColor(canvasY);
+
+        ctx.fillRect(canvasX,canvasY,1,1);
+
+      }
+
+    }
+
+  }
+
+}
+
+
+
+function confirmOverlay(){
+
+  if(!overlayImg)return;
+
+  // Bake: dither the overlaid image
+
+  const tmp=document.createElement('canvas');tmp.width=W;tmp.height=H;
+
+  const tc=tmp.getContext('2d');
+
+  tc.fillStyle='#000';tc.fillRect(0,0,W,H);
+
+  const dw=Math.floor(overlayImg.width*overlayScale);
+
+  const dh=Math.floor(overlayImg.height*overlayScale);
+
+  tc.drawImage(overlayImg,overlayX,overlayY,dw,dh);
+
+  const imgData=tc.getImageData(0,0,W,H);const data=imgData.data;
+
+  const gray=new Float32Array(W*H);
+
+  for(let i=0;i<W*H;i++){gray[i]=0.299*data[i*4]+0.587*data[i*4+1]+0.114*data[i*4+2];}
+
+  for(let y=0;y<H;y++){for(let x=0;x<W;x++){
+
+    const idx=y*W+x;const old=gray[idx];const nv=old>127?255:0;gray[idx]=nv;const err=old-nv;
+
+    if(x+1<W)gray[idx+1]+=err*7/16;
+
+    if(y+1<H){if(x>0)gray[idx+W-1]+=err*3/16;gray[idx+W]+=err*5/16;if(x+1<W)gray[idx+W+1]+=err*1/16;}
+
+  }}
+
+  saveState();initCanvas();
+
+  for(let y=0;y<H;y++){for(let x=0;x<W;x++){
+
+    if(gray[y*W+x]>127){ctx.fillStyle=getZoneColor(y);ctx.fillRect(x,y,1,1);}
+
+  }}
+
+  overlayImg=null;overlaySavedCanvas=null;saveCanvas();
+
+  document.getElementById('overlayControls').style.display='none';
+
+  setStatus('图片已烘焙到画布','ok');
+
+}
+
+
+
+function cancelOverlayIfActive(){if(overlayImg){overlayImg=null;overlaySavedCanvas=null;gifFile=null;document.getElementById('overlayControls').style.display='none';}}
+
+function cancelOverlay(){
+
+  if(overlaySavedCanvas)ctx.putImageData(overlaySavedCanvas,0,0);
+
+  overlayImg=null;overlaySavedCanvas=null;gifFile=null;
+
+  document.getElementById('overlayControls').style.display='none';
+
+  setStatus('已取消','info');
+
+}
+
+
+
+// Overlay mouse/touch handlers on canvas
+
+canvas.addEventListener('mousedown',function(e){
+
+  if(!overlayImg)return;
+
+  const p=getPos(e);
+
+  const dw=Math.floor(overlayImg.width*overlayScale);
+
+  const dh=Math.floor(overlayImg.height*overlayScale);
+
+  if(p.x>=overlayX&&p.x<=overlayX+dw&&p.y>=overlayY&&p.y<=overlayY+dh){
+
+    overlayDragging=true;overlayStartX=p.x-overlayX;overlayStartY=p.y-overlayY;
+
+  }
+
+});
+
+canvas.addEventListener('mousemove',function(e){
+
+  if(!overlayDragging||!overlayImg)return;
+
+  const p=getPos(e);
+
+  overlayX=p.x-overlayStartX;overlayY=p.y-overlayStartY;
+
+  renderOverlay();
+
+});
+
+canvas.addEventListener('mouseup',function(){overlayDragging=false;});
+
+canvas.addEventListener('wheel',function(e){
+
+  if(!overlayImg)return;
+
+  e.preventDefault();
+
+  const p=getPos(e);
+
+  const oldScale=overlayScale;
+
+  overlayScale*=e.deltaY<0?1.15:0.87;
+
+  overlayScale=Math.max(0.1,Math.min(overlayScale,8));
+
+  // Zoom toward cursor
+
+  const ratio=overlayScale/oldScale;
+
+  overlayX=Math.floor(p.x-ratio*(p.x-overlayX));
+
+  overlayY=Math.floor(p.y-ratio*(p.y-overlayY));
+
+  renderOverlay();
+
+},{passive:false});
+
+canvas.addEventListener('touchmove',function(e){
+
+  if(!overlayImg||!overlayDragging)return;
+
+  e.preventDefault();
+
+  const p=getPos(e);
+
+  overlayX=p.x-overlayStartX;overlayY=p.y-overlayStartY;
+
+  renderOverlay();
+
+},{passive:false});
+
+
+
+// Auto-save canvas to localStorage
+
+function saveCanvas(){
+
+  try{localStorage.setItem('oled_canvas', canvas.toDataURL());}catch(e){}
+
+}
+
+function restoreCanvas(){
+
+  try{
+
+    const d=localStorage.getItem('oled_canvas');
+
+    if(!d)return false;
+
+    const img=new Image();
+
+    img.onload=function(){ctx.drawImage(img,0,0);};
+
+    img.src=d;
+
+    return true;
+
+  }catch(e){return false;}
+
+}
+
+
+
+// Auto-save after draw operations
+
+const _origDrawDot=drawDot;
+
+drawDot=function(x,y){_origDrawDot(x,y);saveCanvas();};
+
+const _origUndo=undo;
+
+undo=function(){_origUndo();saveCanvas();};
+
+const _origClear=clearCanvas;
+
+clearCanvas=function(){_origClear();setTimeout(saveCanvas,10);};
+
+
+
+// Bitmap
+
+function getBitmapData(){
+
+  const imgData=ctx.getImageData(0,0,W,H);const data=imgData.data;
+
+  const bytes=new Uint8Array(BITMAP_SIZE);
+
+  for(let y=0;y<H;y++){for(let bx=0;bx<W/8;bx++){
+
+    let byte=0;
+
+    for(let bit=0;bit<8;bit++){
+
+      const x=bx*8+bit;const idx=(y*W+x)*4;
+
+      if(data[idx]>30||data[idx+1]>30||data[idx+2]>30)byte|=(1<<bit);
+
+    }
+
+    bytes[y*(W/8)+bx]=byte;
+
+  }}
+
+  return bytes;
+
+}
+
+
+
+async function sendBitmap(){
+
+  const bytes=getBitmapData();
+
+  try{
+
+    const r=await fetch('/api/send_bitmap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:Array.from(bytes)})});
+
+    const j=await r.json();setStatus(j.ok?'画面已发送!':'发送失败: '+j.error,j.ok?'ok':'err');
+
+  }catch(e){setStatus('请求失败: '+e.message,'err');}
+
+}
+
+
+
+// Mode: canvas=手动画布 agents=接受Python自动推送
+
+function setMode(mode){
+
+  document.getElementById('canvasArea').style.display=mode==='canvas'?'':'none';
+
+  document.getElementById('agentsPanel').style.display=mode==='agents'?'block':'none';
+
+  try{localStorage.setItem('oled_mode',mode);}catch(e){}
+
+}
+
+// Restore saved mode
+
+try{
+
+  const savedMode=localStorage.getItem('oled_mode');
+
+  if(savedMode==='agents'){
+
+    document.querySelector('input[name="mode"][value="agents"]').checked=true;
+
+    setMode('agents');
+
+  }
+
+}catch(e){}
+
+
+
+// GIF playback engine
+
+let gifFrames=[];
+
+let gifPlaying=false;
+
+let gifTimer=null;
+
+let gifPrevFrame=null;
+
+
+
+function setTool(t){
+
+  tool=t;
+
+  document.querySelectorAll('.toolbar button[id^="tool"]').forEach(b=>b.classList.remove('active'));
+
+  const btn=document.getElementById('tool'+t.charAt(0).toUpperCase()+t.slice(1));
+
+  if(btn)btn.classList.add('active');
+
+  const tp=document.getElementById('textPanel');
+
+  if(tp)tp.style.display=t==='text'?'block':'none';
+
+  if(t==='text'){const ti=document.getElementById('textInput');if(ti)ti.focus();}
+
+  if(t==='image'){document.getElementById('fileInput').click();setTool('draw');}
+
+  if(t==='gif'){document.getElementById('gifInput').click();setTool('draw');}
+
+}
+
+
+
+let gifFile=null;
+
+function loadGif(e){
+
+  const file=e.target.files[0];if(!file)return;
+
+  stopGif();
+
+  gifFrames=[];gifPrevFrame=null;gifFile=file;
+
+  const reader=new FileReader();
+
+  reader.onload=function(ev){
+
+    const img=new Image();
+
+    img.onload=function(){
+
+      // Show first frame as overlay for positioning
+
+      startOverlay(img);
+
+      setStatus('拖拽移动 滚轮缩放 确认后解析GIF','info');
+
+    };
+
+    img.src=ev.target.result;
+
+  };
+
+  reader.readAsDataURL(file);
+
+  e.target.value='';
+
+}
+
+
+
+// Override confirmOverlay to also handle GIF
+
+const _origConfirmOverlay=confirmOverlay;
+
+confirmOverlay=function(){
+
+  if(gifFile){
+
+    // Save overlay position/scale for GIF frames
+
+    const ox=overlayX,oy=overlayY,os=overlayScale;
+
+    overlayImg=null;overlaySavedCanvas=null;
+
+    document.getElementById('overlayControls').style.display='none';
+
+    setStatus('GIF解析中...','info');
+
+    extractGifFrames(gifFile,ox,oy,os);
+
+    gifFile=null;
+
+  }else{
+
+    _origConfirmOverlay();
+
+  }
+
+};
+
+
+
+// Extract GIF frames using fetch + parsing GIF89a
+
+async function extractGifFrames(file, ox, oy, os){
+
+  const buf=await file.arrayBuffer();
+
+  const bytes=new Uint8Array(buf);
+
+  // Parse GIF
+
+  if(bytes[0]!==0x47||bytes[1]!==0x49||bytes[2]!==0x46){
+
+    setStatus('不是有效的GIF文件','err');return;
+
+  }
+
+  const w=bytes[6]|(bytes[7]<<8);
+
+  const h=bytes[8]|(bytes[9]<<8);
+
+  let pos=13;
+
+  // Skip global color table
+
+  if(bytes[10]&0x80){
+
+    const gctSize=3*(1<<(1+(bytes[10]&0x07)));
+
+    pos+=gctSize;
+
+  }
+
+
+
+  const frames=[];
+
+  const offscreen=document.createElement('canvas');offscreen.width=w;offscreen.height=h;
+
+  const oc=offscreen.getContext('2d',{willReadFrequently:true});
+
+  let disposal=0;
+
+  let prevImgData=null;
+
+
+
+  while(pos<bytes.length){
+
+    if(bytes[pos]===0x2C){ // Image Descriptor
+
+      const left=bytes[pos+1]|(bytes[pos+2]<<8);
+
+      const top=bytes[pos+3]|(bytes[pos+4]<<8);
+
+      const fw=bytes[pos+5]|(bytes[pos+6]<<8);
+
+      const fh=bytes[pos+7]|(bytes[pos+8]<<8);
+
+      let localCT=null;
+
+      let hdrSize=9;
+
+      if(bytes[pos+9]&0x80){
+
+        const lctSize=3*(1<<(1+(bytes[pos+9]&0x07)));
+
+        localCT=bytes.slice(pos+10,pos+10+lctSize);
+
+        hdrSize=10+lctSize;
+
+      }
+
+      pos+=hdrSize;
+
+      // LZW minimum code size
+
+      const lzwMin=bytes[pos];pos++;
+
+      // Read sub-blocks
+
+      const compressed=[];
+
+      while(bytes[pos]!==0){
+
+        const blockSize=bytes[pos];pos++;
+
+        for(let i=0;i<blockSize;i++)compressed.push(bytes[pos+i]);
+
+        pos+=blockSize;
+
+      }
+
+      pos++; // skip block terminator
+
+
+
+      // Decompress LZW
+
+      const pixels=lzwDecode(compressed,lzwMin,fw*fh);
+
+      const colorTable=localCT||bytes.slice(13,13+3*(1<<(1+(bytes[10]&0x07))));
+
+      const imgData=oc.createImageData(fw,fh);
+
+      const transparentIndex=(bytes[pos-1]!==undefined&&disposal===1)?-1:-1; // simplified
+
+
+
+      for(let i=0;i<pixels.length;i++){
+
+        const ci=pixels[i]*3;
+
+        imgData.data[i*4]=colorTable[ci]||0;
+
+        imgData.data[i*4+1]=colorTable[ci+1]||0;
+
+        imgData.data[i*4+2]=colorTable[ci+2]||0;
+
+        imgData.data[i*4+3]=255;
+
+      }
+
+      oc.putImageData(imgData,left,top);
+
+
+
+      // Scale to 128x64 and convert to bitmap
+
+      const scaled=document.createElement('canvas');scaled.width=W;scaled.height=H;
+
+      const sc=scaled.getContext('2d',{willReadFrequently:true});
+
+      sc.fillStyle='#000';sc.fillRect(0,0,W,H);
+
+      sc.drawImage(offscreen,ox||0,oy||0,Math.floor(w*(os||1)),Math.floor(h*(os||1)));
+
+      frames.push(canvasToBitmap(sc));
+
+
+
+    } else if(bytes[pos]===0x21){ // Extension
+
+      pos+=2; // skip 0x21 and label
+
+      if(bytes[pos-1]===0xF9){ // Graphic Control
+
+        disposal=bytes[pos+1]&0x07;
+
+      }
+
+      while(bytes[pos]!==0){const bs=bytes[pos];pos+=bs+1;}
+
+      pos++;
+
+    } else if(bytes[pos]===0x3B){ // Trailer
+
+      break;
+
+    } else {
+
+      pos++;
+
+    }
+
+  }
+
+
+
+  if(frames.length>0){
+
+    gifFrames=frames;
+
+    bitmapToCanvas(frames[0]);
+
+    document.getElementById('gifControls').style.display='flex';
+
+    document.getElementById('gifInfo').textContent=`${frames.length} 帧`;
+
+    setStatus(`GIF已解析 ${frames.length}帧`,'ok');
+
+  } else {
+
+    setStatus('GIF解析失败','err');
+
+  }
+
+}
+
+
+
+// Simple LZW decoder
+
+function lzwDecode(compressed,minCodeSize,pixelCount){
+
+  const clearCode=1<<minCodeSize;
+
+  const eoiCode=clearCode+1;
+
+  let codeSize=minCodeSize+1;
+
+  let nextCode=eoiCode+1;
+
+  let table=[];
+
+  for(let i=0;i<clearCode;i++)table[i]=[i];
+
+  table[clearCode]=null;
+
+  table[eoiCode]=null;
+
+
+
+  let output=[];
+
+  let bitBuf=0;let bits=0;let bytePos=0;
+
+
+
+  function readCode(){
+
+    while(bits<codeSize){
+
+      if(bytePos>=compressed.length)return eoiCode;
+
+      bitBuf|=(compressed[bytePos++]<<bits);
+
+      bits+=8;
+
+    }
+
+    const code=bitBuf&((1<<codeSize)-1);
+
+    bitBuf>>=codeSize;bits-=codeSize;
+
+    return code;
+
+  }
+
+
+
+  let prev=null;
+
+  let code=readCode();
+
+  if(code===clearCode){code=readCode();}
+
+  if(code>=table.length)code=0;
+
+  if(code<clearCode)output.push(code);
+
+  prev=code<clearCode?[code]:table[code]||[0];
+
+
+
+  while(output.length<pixelCount){
+
+    code=readCode();
+
+    if(code===eoiCode)break;
+
+    if(code===clearCode){
+
+      table=[];
+
+      for(let i=0;i<clearCode;i++)table[i]=[i];
+
+      table[clearCode]=null;table[eoiCode]=null;
+
+      nextCode=eoiCode+1;codeSize=minCodeSize+1;
+
+      code=readCode();
+
+      if(code>=table.length)code=0;
+
+      if(code<clearCode)output.push(code);
+
+      prev=code<clearCode?[code]:table[code]||[0];
+
+      continue;
+
+    }
+
+    let entry;
+
+    if(code<table.length){
+
+      entry=table[code]||[0];
+
+    }else if(code===table.length){
+
+      entry=prev.concat(prev[0]);
+
+    }else{
+
+      entry=[0];
+
+    }
+
+    for(const v of entry)output.push(v);
+
+    table[nextCode++]=prev.concat(entry[0]);
+
+    if(nextCode>=(1<<codeSize)&&codeSize<12)codeSize++;
+
+    prev=entry;
+
+  }
+
+  return output.slice(0,pixelCount);
+
+}
+
+
+
+// Canvas -> bitmap bytes (same as getBitmapData but from any canvas)
+
+function canvasToBitmap(cvsCtx){
+
+  const imgData=cvsCtx.getImageData(0,0,W,H);
+
+  const data=imgData.data;
+
+  const bytes=new Uint8Array(BITMAP_SIZE);
+
+  for(let y=0;y<H;y++){for(let bx=0;bx<W/8;bx++){
+
+    let byte=0;
+
+    for(let bit=0;bit<8;bit++){
+
+      const x=bx*8+bit;const idx=(y*W+x)*4;
+
+      if(data[idx]>30||data[idx+1]>30||data[idx+2]>30)byte|=(1<<bit);
+
+    }
+
+    bytes[y*(W/8)+bx]=byte;
+
+  }}
+
+  return bytes;
+
+}
+
+
+
+// Bitmap bytes -> canvas preview
+
+function bitmapToCanvas(bytes){
+
+  initCanvas();
+
+  for(let y=0;y<H;y++){for(let bx=0;bx<W/8;bx++){
+
+    const b=bytes[y*(W/8)+bx];
+
+    for(let bit=0;bit<8;bit++){
+
+      if(b&(1<<bit)){
+
+        ctx.fillStyle=getZoneColor(y);
+
+        ctx.fillRect(bx*8+bit,y,1,1);
+
+      }
+
+    }
+
+  }}
+
+}
+
+
+
+// Play GIF on OLED
+
+async function playGif(){
+
+  if(gifFrames.length===0||gifPlaying)return;
+
+  gifPlaying=true;
+
+  gifPrevFrame=null;
+
+  setStatus('GIF播放中...','info');
+
+  for(let i=0;i<gifFrames.length&&gifPlaying;i++){
+
+    const frame=gifFrames[i];
+
+    bitmapToCanvas(frame);
+
+    if(gifPrevFrame){
+
+      // Send diff
+
+      try{
+
+        const r=await fetch('/api/send_diff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prev:Array.from(gifPrevFrame),curr:Array.from(frame)})});
+
+        const j=await r.json();
+
+        if(!j.ok){setStatus('发送失败: '+j.error,'err');break;}
+
+      }catch(e){setStatus('请求失败','err');break;}
+
+    }else{
+
+      // First frame: send full bitmap
+
+      try{
+
+        const r=await fetch('/api/send_bitmap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:Array.from(frame)})});
+
+        const j=await r.json();
+
+        if(!j.ok){setStatus('发送失败: '+j.error,'err');break;}
+
+      }catch(e){setStatus('请求失败','err');break;}
+
+    }
+
+    gifPrevFrame=frame;
+
+    // Wait for frame delay (default 100ms, but at least 50ms)
+
+    await new Promise(r=>setTimeout(r,100));
+
+    // Loop
+
+    if(i===gifFrames.length-1&&gifPlaying)i=-1;
+
+  }
+
+  if(gifPlaying)setStatus('GIF播放完成','ok');
+
+  gifPlaying=false;
+
+}
+
+
+
+function stopGif(){
+
+  gifPlaying=false;
+
+  if(gifTimer){clearTimeout(gifTimer);gifTimer=null;}
+
+  setStatus('GIF已停止','info');
+
+}
+
+
+
+function sendGifOnce(){
+
+  if(gifFrames.length===0)return;
+
+  const frame=getBitmapData();
+
+  fetch('/api/send_bitmap',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:Array.from(frame)})}).then(r=>r.json()).then(j=>{
+
+    setStatus(j.ok?'当前帧已发送':'发送失败',j.ok?'ok':'err');
+
+  });
+
+}
+
+
+
+function setStatus(msg,type){const el=document.getElementById('status');el.textContent=msg;el.className='status '+(type||'info');}
+
+
+
+// 初始状态检查
+
+fetch('/api/status').then(r=>r.json()).then(j=>{
+
+  setStatus(j.port?'已连接 '+j.port:'未检测到ESP8266',j.port?'ok':'err');
+
+}).catch(()=>setStatus('服务连接失败','err'));
+
+
+
+// Agents toggle
+
+let agentsEnabled=true;
+
+function toggleAgents(on){
+
+  agentsEnabled=on;
+
+  document.getElementById('agentsLabel').textContent=on?'\u5f00\u542f':'\u5173\u95ed';
+
+  document.getElementById('agentsLabel').style.color=on?'#4f4':'#888';
+
+  fetch('/api/agents_toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:on})});
+
+  try{localStorage.setItem('oled_agents',on?'1':'0');}catch(e){}
+
+}
+
+fetch('/api/agents_status').then(r=>r.json()).then(j=>{
+
+  agentsEnabled=j.enabled;
+
+  document.getElementById('agentsToggle').checked=j.enabled;
+
+  document.getElementById('agentsLabel').textContent=j.enabled?'\u5f00\u542f':'\u5173\u95ed';
+
+  document.getElementById('agentsLabel').style.color=j.enabled?'#4f4':'#888';
+
+}).catch(()=>{});
+
+
+
+// Restore saved text inputs
+
+try{
+
+  const st=localStorage.getItem('oled_agentTitle');
+
+  if(st)document.getElementById('agentTitle').value=st;
+
+  const sb=localStorage.getItem('oled_agentBody');
+
+  if(sb)document.getElementById('agentBody').value=sb;
+
+  const si=localStorage.getItem('oled_textInput');
+
+  if(si)document.getElementById('textInput').value=si;
+
+}catch(e){}
+
+
+
+// Auto-save text inputs
+
+document.getElementById('agentTitle').addEventListener('input',()=>{try{localStorage.setItem('oled_agentTitle',document.getElementById('agentTitle').value);}catch(e){}});
+
+document.getElementById('agentBody').addEventListener('input',()=>{try{localStorage.setItem('oled_agentBody',document.getElementById('agentBody').value);}catch(e){}});
+
+document.getElementById('textInput').addEventListener('input',()=>{try{localStorage.setItem('oled_textInput',document.getElementById('textInput').value);}catch(e){}});
+
+
+
+</script>
+
+</body>
+
+</html>
+
+
+
